@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="src/JorgeCostaMacia.Bus.Kafka.HealthChecks/JorgeCostaMacia.Bus.Kafka.HealthChecks.csproj" />
+  <Project Path="src/JorgeCostaMacia.Bus.Kafka.Retry.Quartz/JorgeCostaMacia.Bus.Kafka.Retry.Quartz.csproj" />
+  <Project Path="src/JorgeCostaMacia.Bus.Kafka/JorgeCostaMacia.Bus.Kafka.csproj" />
+  <Project Path="test/JorgeCostaMacia.Bus.Kafka.HealthChecks.Tests/JorgeCostaMacia.Bus.Kafka.HealthChecks.Tests.csproj" />
+  <Project Path="test/JorgeCostaMacia.Bus.Kafka.IntegrationTests/JorgeCostaMacia.Bus.Kafka.IntegrationTests.csproj" />
+  <Project Path="test/JorgeCostaMacia.Bus.Kafka.Retry.Quartz.IntegrationTests/JorgeCostaMacia.Bus.Kafka.Retry.Quartz.IntegrationTests.csproj" />
+  <Project Path="test/JorgeCostaMacia.Bus.Kafka.Retry.Quartz.Tests/JorgeCostaMacia.Bus.Kafka.Retry.Quartz.Tests.csproj" />
+  <Project Path="test/JorgeCostaMacia.Bus.Kafka.Tests/JorgeCostaMacia.Bus.Kafka.Tests.csproj" />
+</Solution>
