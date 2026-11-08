@@ -19,7 +19,7 @@ public sealed class AdminConfiguratorTests
     }
 
     [Fact]
-    public void AddCommand_RecordsTheTopicPartitionCount()
+    public void AddCommand_WithAPartitionCount_RecordsItForTheTopic()
     {
         AdminConfigurator configurator = new AdminConfigurator(Configuration());
 
@@ -29,7 +29,7 @@ public sealed class AdminConfiguratorTests
     }
 
     [Fact]
-    public void AddEvent_RecordsTheTopicPartitionCount()
+    public void AddEvent_WithAPartitionCount_RecordsItForTheTopic()
     {
         AdminConfigurator configurator = new AdminConfigurator(Configuration());
 
@@ -49,7 +49,7 @@ public sealed class AdminConfiguratorTests
     }
 
     [Fact]
-    public void AddTopic_Duplicate_Throws()
+    public void AddEvent_OnATopicAlreadyDeclared_Throws()
     {
         AdminConfigurator configurator = new AdminConfigurator(Configuration());
 

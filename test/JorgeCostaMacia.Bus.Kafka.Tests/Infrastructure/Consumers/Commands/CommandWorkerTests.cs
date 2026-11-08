@@ -70,7 +70,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task HandlerSucceeds_StoresTheOffset_AndProducesNothing()
+    public async Task StartAsync_HandlerSucceeds_StoresTheOffsetAndProducesNothing()
     {
         ConsumerFake consumer = new ConsumerFake(Deliveries.Delivery(new TestCommand("pepe")));
 
@@ -85,7 +85,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task ConsumedDelivery_ReportsTheBrokersUp()
+    public async Task StartAsync_ADeliveryWhileHealthIsDown_ReportsTheBrokersUp()
     {
         // a delivery in hand proves the brokers are reachable: consuming flips a down tracker back
         // up before the handler runs — its failures are the delivery's problem, not the connection's.
@@ -98,7 +98,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task HandlerThrows_NoLadder_ParksToErrorTopic_AndStores()
+    public async Task StartAsync_HandlerThrowsWithNoLadder_ParksToTheErrorTopicAndStores()
     {
         _handler.Failure = new InvalidOperationException("boom");
         ConsumerFake consumer = new ConsumerFake(Deliveries.Delivery(new TestCommand("pepe")));
@@ -111,7 +111,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task HandlerThrows_ZeroInterval_RequeuesToTopicTail_AndStores()
+    public async Task StartAsync_HandlerThrowsWithAZeroInterval_RequeuesToTheTopicTailAndStores()
     {
         _handler.Failure = new InvalidOperationException("boom");
         ConsumerFake consumer = new ConsumerFake(Deliveries.Delivery(new TestCommand("pepe")));
@@ -124,7 +124,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task HandlerThrowsKeyNotFound_GoesToErrorLane_NotFault()
+    public async Task StartAsync_HandlerThrowsKeyNotFound_TakesTheErrorLaneNotTheFaultLane()
     {
         // a dictionary miss inside USER code is a handling failure (retry ladder), not a malformed delivery
         _handler.Failure = new KeyNotFoundException("user code dictionary miss");
@@ -138,7 +138,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task MalformedBody_ParksToFaultTopic_AndStores()
+    public async Task StartAsync_AMalformedBody_ParksToTheFaultTopicAndStores()
     {
         ConsumerFake consumer = new ConsumerFake(Deliveries.Garbage());
 
@@ -151,7 +151,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task NullBody_ParksToFaultTopic_AndStores()
+    public async Task StartAsync_ANullBody_ParksToTheFaultTopicAndStores()
     {
         ConsumerFake consumer = new ConsumerFake(Deliveries.NullBody());
 
@@ -164,7 +164,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task ErrorLaneDown_EscalatesAndParksToFaultTopic()
+    public async Task StartAsync_HandlerThrowsWithTheErrorLaneDown_EscalatesToTheFaultTopic()
     {
         // the handler fails AND the retry lane's produce fails (partial outage): the error handler
         // reports Unhandled and the worker escalates — the valid message must end parked to .fault.
@@ -183,7 +183,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task BothLanesDown_LeavesTheDeliveryUnacked_AndKeepsConsuming()
+    public async Task StartAsync_HandlerThrowsWithBothLanesDown_LeavesItUnackedAndKeepsConsuming()
     {
         // the handler fails and BOTH parking lanes are down (the retry requeue and the .fault park):
         // the delivery cannot be parked anywhere — it must stay unacked (the Critical log is the
@@ -206,7 +206,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task FaultHandlerThrows_LeavesTheDeliveryUnacked_WithoutTearingDownTheLoop()
+    public async Task StartAsync_FaultHandlerThrows_LeavesItUnackedAndKeepsConsuming()
     {
         // the last-resort catch: even the fault handler blowing up must not ack the delivery nor
         // kill the consume loop — the Critical log carries the coordinates for manual recovery.
@@ -227,7 +227,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task FatalConsumeError_StopsTheApplication()
+    public async Task StartAsync_AFatalConsumeError_StopsTheApplication()
     {
         ConsumerFake consumer = new ConsumerFake()
         {
@@ -242,7 +242,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task TransientConsumeError_BacksOffAndKeepsConsuming()
+    public async Task StartAsync_ATransientConsumeError_BacksOffAndKeepsConsuming()
     {
         // a non-fatal ConsumeException is the client reconnecting on its own: the loop backs off and
         // survives — the delivery consumed after the failure is still handled and acked.
@@ -261,7 +261,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task StopAsync_GracePeriodExpired_AbandonsTheWorker_WithoutDisposingTheConsumer()
+    public async Task StopAsync_GracePeriodExpired_AbandonsTheLoopWithoutDisposingTheConsumer()
     {
         // the shutdown's grace period runs out while the loop is still blocked: the stop returns
         // without failing the host and without closing or disposing the consumer under the live loop
@@ -281,7 +281,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task StoreFails_PartitionLost_KeepsConsuming_AndAcksTheNextDelivery()
+    public async Task StartAsync_StoreFailsOnALostPartition_KeepsConsumingAndAcksTheNext()
     {
         // the partition was reclaimed by another owner between handling and storing: the stale store
         // is swallowed (the new owner redelivers) and the loop keeps consuming its remaining work.
@@ -300,7 +300,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task StoreFails_UnexpectedError_KeepsConsuming_AndAcksTheNextDelivery()
+    public async Task StartAsync_StoreFailsUnexpectedly_KeepsConsumingAndAcksTheNext()
     {
         // an arbitrary store failure leaves the delivery unacked (a restart redelivers it) without
         // tearing anything down: the loop keeps consuming and acking the deliveries that follow.
@@ -319,7 +319,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task ShutdownDuringFaultPark_ExitsTheLoopCleanly_WithoutStoringTheDelivery()
+    public async Task StartAsync_ShutdownDuringAFaultPark_ExitsCleanlyWithoutStoring()
     {
         // the app shuts down while the fault lane is parking a delivery: the cancellation is rethrown
         // for the loop to exit through — no crash, nothing acked, nothing produced — and the stop
@@ -343,7 +343,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task UnreadableEnvelope_RelaysToFaultTopic()
+    public async Task StartAsync_HandlerThrowsOnAnEnvelopeWithoutTrace_RelaysToTheFaultTopic()
     {
         // the body parses and the handler runs, but the envelope has no trace headers: the error
         // handler cannot read the retry count and reports Faulted — the delivery must end parked.
@@ -358,7 +358,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task Tombstone_ParksToFaultTopic_AndStores()
+    public async Task StartAsync_ATombstone_ParksToTheFaultTopicAndStores()
     {
         ConsumerFake consumer = new ConsumerFake(Deliveries.Tombstone());
 
@@ -371,7 +371,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task MultipleDeliveries_ProcessedInOrder_EachStored()
+    public async Task StartAsync_SeveralDeliveries_HandlesAndStoresEachInOrder()
     {
         ConsumerFake consumer = new ConsumerFake(
             Deliveries.Delivery(new TestCommand("a"), 10),
@@ -384,7 +384,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task IgnoresAggregateConsumers_AlwaysProcesses()
+    public async Task StartAsync_ACommandTargetedAtAnotherConsumer_HandlesItAnyway()
     {
         ConsumerFake consumer = new ConsumerFake(
             Deliveries.Delivery(new TestCommand("pepe"), consumers: "other.handler"));
@@ -396,7 +396,7 @@ public sealed class CommandWorkerTests
     }
 
     [Fact]
-    public async Task Startup_WaitsForAGateSlot_ThenReleasesItOnGroupJoin()
+    public async Task StartAsync_WithTheStartupGateFull_WaitsForASlotAndFreesItOnGroupJoin()
     {
         // the shared gate has a single slot, already taken: the worker must wait its turn before its
         // first consume, and once it joins its group (its signal raised) it must free the slot again.

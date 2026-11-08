@@ -43,7 +43,7 @@ public sealed class BusTests
     }
 
     [Fact]
-    public async Task Send_Fresh_BuildsANewEnvelope()
+    public async Task Send_WithoutTransport_BuildsANewEnvelope()
     {
         TestCommand command = new TestCommand(
             "pepe",
@@ -147,7 +147,7 @@ public sealed class BusTests
     }
 
     [Fact]
-    public async Task Send_SerializesTheRuntimeType()
+    public async Task Send_ACommandWithItsOwnFields_SerializesTheRuntimeType()
     {
         await CreateSut((typeof(TestCommand), "orders")).Send(
             new TestCommand("pepe"),

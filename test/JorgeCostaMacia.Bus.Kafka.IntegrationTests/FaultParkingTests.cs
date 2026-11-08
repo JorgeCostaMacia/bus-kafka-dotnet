@@ -36,7 +36,7 @@ public sealed class FaultParkingTests : IClassFixture<KafkaFixture>
     /// <summary>A malformed body that cannot be deserialized breaks the delivery and is parked to the topic's
     /// <c>.fault</c>.</summary>
     [Fact]
-    public async Task Deliver_aMalformedBodyThatCannotBeDeserialized_ParksTheDeliveryToTheFaultTopic()
+    public async Task StartAsync_AMalformedBody_ParksTheDeliveryToTheFaultTopic()
     {
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         IConfiguration configuration = _fixture.BuildConfiguration();

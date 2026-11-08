@@ -18,7 +18,7 @@ public sealed class AdminWorkerTests
     private const string UnreachableBroker = "127.0.0.1:1";
 
     [Fact]
-    public async Task StartAsync_WithNoDeclaredTopics_ShortCircuits_AndNeverReachesTheBroker()
+    public async Task StartAsync_WithNoDeclaredTopics_ReturnsWithoutReachingTheBroker()
     {
         // declaring no topics IS the opt-out (leave provisioning to the broker), so the worker must
         // return before it builds an admin client — the unroutable bootstrap is what proves it did:
@@ -37,7 +37,7 @@ public sealed class AdminWorkerTests
     }
 
     [Fact]
-    public async Task StopAsync_IsANoOp_AndLogsNothing()
+    public async Task StopAsync_WithDeclaredTopics_DoesNothingAndLogsNothing()
     {
         // provisioning is a one-shot at startup: there is nothing to wind down, and a stop that logged
         // would be noise on every shutdown.

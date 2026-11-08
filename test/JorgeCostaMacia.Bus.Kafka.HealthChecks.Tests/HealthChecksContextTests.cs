@@ -22,7 +22,7 @@ public sealed class HealthChecksContextTests
         => Assert.Single(provider.GetRequiredService<IOptions<HealthCheckServiceOptions>>().Value.Registrations);
 
     [Fact]
-    public void AddKafkaBus_Defaults_RegistersTheCheckUnderItsDefaultName()
+    public void AddKafkaBus_WithoutArguments_RegistersTheCheckUnderItsDefaultName()
     {
         ServiceProvider provider = Provider(builder => builder.AddKafkaBus());
 
@@ -33,7 +33,7 @@ public sealed class HealthChecksContextTests
     }
 
     [Fact]
-    public void AddKafkaBus_Custom_RegistersTheNameStatusAndTags()
+    public void AddKafkaBus_WithANameStatusAndTags_RegistersThemOnTheCheck()
     {
         ServiceProvider provider = Provider(
             builder => builder.AddKafkaBus("orders-bus", HealthStatus.Degraded, new string[] { "ready" }));
@@ -45,7 +45,7 @@ public sealed class HealthChecksContextTests
     }
 
     [Fact]
-    public void AddKafkaBus_Factory_BuildsTheCheckOverTheBusTracker()
+    public void AddKafkaBus_ResolvedThroughItsFactory_BuildsTheCheckOverTheBusTracker()
     {
         ServiceProvider provider = Provider(builder => builder.AddKafkaBus());
 

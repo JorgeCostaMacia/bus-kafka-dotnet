@@ -76,7 +76,7 @@ public sealed class ProducerTests
     }
 
     [Fact]
-    public async Task Produce_StampsTheHostHeaders()
+    public async Task Produce_AnEnvelopeWithoutHostHeaders_StampsTheHost()
     {
         await Sut().Produce("orders", Message(), TestContext.Current.CancellationToken);
 
@@ -87,7 +87,7 @@ public sealed class ProducerTests
     }
 
     [Fact]
-    public async Task Produce_ReStampsTheHost_OverAClonedEnvelope()
+    public async Task Produce_AnEnvelopeStampedByAnotherHost_ReStampsTheHost()
     {
         Message<Null, byte[]> message = Message();
         message.Headers = new Headers { new Header(TransportHeaders.HostMachineName, "another-host"u8.ToArray()) };
@@ -115,7 +115,7 @@ public sealed class ProducerTests
     }
 
     [Fact]
-    public async Task Produce_Batch_OneFails_ThrowsTheFailure_AndStillProducesTheRest()
+    public async Task Produce_ABatchWithOneFailingPair_ThrowsAndStillProducesTheRest()
     {
         // the pairs are enqueued together and awaited together: one failing pair faults the await
         // (awaiting still means broker-acked for EVERY message), while the other pairs are still

@@ -73,7 +73,7 @@ public sealed class BusContextTests
     }
 
     [Fact]
-    public void AddBusContext_ProducerOnly_RegistersTheSendSide_AndNeedsNoConsumerSection()
+    public void AddBusContext_WithoutAConsumer_RegistersOnlyTheSendSide()
     {
         ServiceCollection services = new ServiceCollection();
 
@@ -195,7 +195,7 @@ public sealed class BusContextTests
     }
 
     [Fact]
-    public void AddCommandHandler_RegistersTheHandlerAndItsWorker()
+    public void AddCommandHandler_ForAMappedCommand_RegistersTheHandlerAndItsWorker()
     {
         ServiceCollection services = new ServiceCollection();
 
@@ -219,7 +219,7 @@ public sealed class BusContextTests
     }
 
     [Fact]
-    public void AddEventSubscriber_RegistersTheSubscriberAndItsWorker()
+    public void AddEventSubscriber_ForAMappedEvent_RegistersTheSubscriberAndItsWorker()
     {
         ServiceCollection services = new ServiceCollection();
 

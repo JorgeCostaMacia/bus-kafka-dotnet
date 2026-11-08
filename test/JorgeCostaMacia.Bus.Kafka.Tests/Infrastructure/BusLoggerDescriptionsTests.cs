@@ -39,7 +39,7 @@ public sealed class BusLoggerDescriptionsTests
     };
 
     [Fact]
-    public void Descriptions_MatchTheirPinnedText()
+    public void Descriptions_EveryConstant_MatchesItsPinnedText()
     {
         Dictionary<string, string> actual = Descriptions();
 
@@ -55,7 +55,7 @@ public sealed class BusLoggerDescriptionsTests
     }
 
     [Fact]
-    public void Descriptions_AreDistinct()
+    public void Descriptions_AllConstants_AreDistinct()
     {
         string[] values = Descriptions().Values.ToArray();
 

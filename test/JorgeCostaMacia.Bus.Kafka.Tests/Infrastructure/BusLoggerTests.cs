@@ -64,7 +64,7 @@ public sealed class BusLoggerTests
     }
 
     [Fact]
-    public void LogPartitionsLost_Warns()
+    public void LogPartitionsLost_WithLostPartitions_Warns()
     {
         // falling out of the group is nothing the worker can act on, but the partitions' new owners will
         // redeliver from the last committed offset — worth a warning, not silence.
@@ -80,7 +80,7 @@ public sealed class BusLoggerTests
     }
 
     [Fact]
-    public void ProducerContext_DecodesTheTransportHeadersToTheirRealTypes()
+    public void ProducerContext_WithGuidAndCountHeaders_LogsThemWithTheirRealTypes()
     {
         // a Guid header must read as a Guid and a counter as a number: that is what makes them
         // filterable in the log platform instead of opaque text.
