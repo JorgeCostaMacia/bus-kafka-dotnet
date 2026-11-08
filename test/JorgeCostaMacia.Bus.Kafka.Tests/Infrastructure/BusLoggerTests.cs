@@ -43,7 +43,7 @@ public sealed class BusLoggerTests
                 new List<TopicPartitionOffsetError>(),
                 new Error(ErrorCode.Local_TimedOut, "timeout")));
 
-        Assert.Equal("Commit failed.", Assert.Single(logger.Logged).Message);
+        Assert.Equal("CommitFailed", Assert.Single(logger.Logged).Message);
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public sealed class BusLoggerTests
 
         BusLogger.LogCommit(logger, new CommittedOffsets(offsets, new Error(ErrorCode.NoError)));
 
-        Assert.Equal("Commit failed.", Assert.Single(logger.Logged).Message);
+        Assert.Equal("CommitFailed", Assert.Single(logger.Logged).Message);
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public sealed class BusLoggerTests
 
         BusLogger.LogPartitionsLost(logger, partitions);
 
-        Assert.Equal("Partitions lost.", Assert.Single(logger.Logged).Message);
+        Assert.Equal("PartitionsLost", Assert.Single(logger.Logged).Message);
     }
 
     [Fact]

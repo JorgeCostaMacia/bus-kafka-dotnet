@@ -54,7 +54,7 @@ internal static class BusLogger
                 string.Join(", ", committed.Offsets.Where(offset => offset.Error.IsError))),
             new PropertyEnricher("BusDescription", BusLoggerDescriptions.RedeliveryWindowWidened)))
         {
-            logger.LogWarning("Commit failed.");
+            logger.LogWarning("CommitFailed");
         }
     }
 
@@ -68,7 +68,7 @@ internal static class BusLogger
     {
         using (LogContext.PushProperty("KafkaPartitions", string.Join(", ", partitions)))
         {
-            logger.LogInformation("Partitions assigned.");
+            logger.LogInformation("PartitionsAssigned");
         }
     }
 
@@ -82,7 +82,7 @@ internal static class BusLogger
     {
         using (LogContext.PushProperty("KafkaPartitions", string.Join(", ", partitions)))
         {
-            logger.LogInformation("Partitions revoked.");
+            logger.LogInformation("PartitionsRevoked");
         }
     }
 
@@ -98,7 +98,7 @@ internal static class BusLogger
             new PropertyEnricher("KafkaPartitions", string.Join(", ", partitions)),
             new PropertyEnricher("BusDescription", BusLoggerDescriptions.RedeliveredToNewOwner)))
         {
-            logger.LogWarning("Partitions lost.");
+            logger.LogWarning("PartitionsLost");
         }
     }
 
@@ -176,7 +176,7 @@ internal static class BusLogger
             new PropertyEnricher("Retry", retry),
             new PropertyEnricher("BusDescription", BusLoggerDescriptions.RequeuedToRetry)))
         {
-            logger.LogWarning(exception, "Handler failed.");
+            logger.LogWarning(exception, "HandlerFailed");
         }
     }
 
@@ -198,7 +198,7 @@ internal static class BusLogger
             new PropertyEnricher("ScheduledAt", scheduledAt),
             new PropertyEnricher("BusDescription", BusLoggerDescriptions.ScheduledToRetry)))
         {
-            logger.LogWarning(exception, "Handler failed.");
+            logger.LogWarning(exception, "HandlerFailed");
         }
     }
 

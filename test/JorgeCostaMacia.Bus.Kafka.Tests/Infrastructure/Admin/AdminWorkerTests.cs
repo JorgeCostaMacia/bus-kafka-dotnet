@@ -23,7 +23,7 @@ public sealed class AdminWorkerTests
         // declaring no topics IS the opt-out (leave provisioning to the broker), so the worker must
         // return before it builds an admin client — the unroutable bootstrap is what proves it did:
         // reaching CreateTopicsAsync against this address could not complete. The absent log is the
-        // observable half: "Topics ensured." sits after the short-circuit, so silence means it returned.
+        // observable half: "TopicsEnsured" sits after the short-circuit, so silence means it returned.
         RecordingLogger<AdminWorker> logger = new RecordingLogger<AdminWorker>();
         AdminWorker worker = new AdminWorker(
             new AdminClientConfig() { BootstrapServers = UnreachableBroker },

@@ -136,7 +136,7 @@ internal abstract class ConsumerWorker<TContext, THandler> : IHostedService
         {
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.WorkerAbandoned))
             {
-                _logger.LogWarning("Stop canceled.");
+                _logger.LogWarning("StopCanceled");
             }
 
             return;
@@ -315,14 +315,14 @@ internal abstract class ConsumerWorker<TContext, THandler> : IHostedService
             {
                 using (BusLogger.DescriptionContext(BusLoggerDescriptions.WorkerStopped))
                 {
-                    _logger.LogInformation("Consume canceled.");
+                    _logger.LogInformation("ConsumeCanceled");
                 }
             }
             catch (ConsumeException exception) when (exception.Error.IsFatal)
             {
                 using (BusLogger.DescriptionContext(BusLoggerDescriptions.ApplicationStopped))
                 {
-                    _logger.LogCritical(exception, "Consume failed.");
+                    _logger.LogCritical(exception, "ConsumeFailed");
                 }
 
                 _lifetime.StopApplication();
@@ -333,7 +333,7 @@ internal abstract class ConsumerWorker<TContext, THandler> : IHostedService
             {
                 using (BusLogger.DescriptionContext(BusLoggerDescriptions.ConsumeRetried))
                 {
-                    _logger.LogError(exception, "Consume failed.");
+                    _logger.LogError(exception, "ConsumeFailed");
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(1), CancellationToken.None);
@@ -342,7 +342,7 @@ internal abstract class ConsumerWorker<TContext, THandler> : IHostedService
             {
                 using (BusLogger.DescriptionContext(BusLoggerDescriptions.ConsumeLoopFailed))
                 {
-                    _logger.LogError(exception, "Consume loop failed.");
+                    _logger.LogError(exception, "ConsumeLoopFailed");
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(1), CancellationToken.None);
@@ -441,7 +441,7 @@ internal abstract class ConsumerWorker<TContext, THandler> : IHostedService
         {
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.EscalatedToFaultHandler))
             {
-                _logger.LogError(failure, "Error handler failed.");
+                _logger.LogError(failure, "ErrorHandlerFailed");
             }
 
             outcome = ErrorResult.Unhandled;
@@ -503,7 +503,7 @@ internal abstract class ConsumerWorker<TContext, THandler> : IHostedService
             // restart before that happens (redelivery) or re-inject from the topic while it is retained.
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.DeliveryBuried))
             {
-                _logger.LogError(exception, "Fault park failed.");
+                _logger.LogError(exception, "FaultParkFailed");
             }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -515,7 +515,7 @@ internal abstract class ConsumerWorker<TContext, THandler> : IHostedService
         {
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.DeliveryBuried))
             {
-                _logger.LogError(failure, "Fault handler failed.");
+                _logger.LogError(failure, "FaultHandlerFailed");
             }
         }
     }
@@ -530,14 +530,14 @@ internal abstract class ConsumerWorker<TContext, THandler> : IHostedService
         {
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.RedeliveredToNewOwner))
             {
-                _logger.LogWarning("Partition lost.");
+                _logger.LogWarning("PartitionLost");
             }
         }
         catch (Exception exception)
         {
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.DeliveryNotAcked))
             {
-                _logger.LogWarning(exception, "Store failed.");
+                _logger.LogWarning(exception, "StoreFailed");
             }
         }
     }

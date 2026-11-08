@@ -94,7 +94,7 @@ public sealed class KafkaLoggerTests
 
         (LogLevel Level, string Message) entry = Assert.Single(logger.Logged);
         Assert.Equal(LogLevel.Debug, entry.Level);
-        Assert.Equal("Kafka statistics.", entry.Message);
+        Assert.Equal("KafkaStatistics", entry.Message);
     }
 
     // the category is public API in practice: it is what an operator puts in appsettings to silence
