@@ -95,7 +95,7 @@ internal sealed class EventErrorHandler<TEvent, TEventSubscriber> : EventErrorHa
 
                 using (BusLogger.DescriptionContext(BusLoggerDescriptions.ParkedToErrorTopic))
                 {
-                    _logger.LogError(context.Error, "Subscriber failed.");
+                    _logger.LogError(context.Error, "SubscriberFailed");
                 }
 
                 Result = ErrorResult.Parked;
@@ -115,7 +115,7 @@ internal sealed class EventErrorHandler<TEvent, TEventSubscriber> : EventErrorHa
         {
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.DeliveryNotAcked))
             {
-                _logger.LogError(produce, "Producer failed.");
+                _logger.LogError(produce, "ProducerFailed");
             }
 
             Result = ErrorResult.Unhandled;
@@ -124,7 +124,7 @@ internal sealed class EventErrorHandler<TEvent, TEventSubscriber> : EventErrorHa
         {
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.HandedToFaultHandler))
             {
-                _logger.LogError(broken, "Subscriber failed.");
+                _logger.LogError(broken, "SubscriberFailed");
             }
 
             Result = ErrorResult.Faulted;
@@ -173,7 +173,7 @@ internal sealed class EventErrorHandler<TEvent, TEventSubscriber> : EventErrorHa
 
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.RetrySchedulerMissing))
             {
-                _logger.LogError(context.Error, "Subscriber failed.");
+                _logger.LogError(context.Error, "SubscriberFailed");
             }
 
             return ErrorResult.Parked;
@@ -203,7 +203,7 @@ internal sealed class EventErrorHandler<TEvent, TEventSubscriber> : EventErrorHa
         {
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.ScheduleFailed))
             {
-                _logger.LogError(schedule, "Retry failed.");
+                _logger.LogError(schedule, "RetryFailed");
             }
 
             return ErrorResult.Unhandled;

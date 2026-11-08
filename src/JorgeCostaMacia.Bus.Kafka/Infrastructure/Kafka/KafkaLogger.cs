@@ -82,7 +82,7 @@ internal static class KafkaLogger
     {
         using (LogContext.PushProperty("KafkaStatistics", statistics))
         {
-            logger.LogDebug("Kafka statistics.");
+            logger.LogDebug("KafkaStatistics");
         }
     }
 }
