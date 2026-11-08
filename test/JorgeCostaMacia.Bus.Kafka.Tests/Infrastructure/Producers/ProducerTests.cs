@@ -1,0 +1,140 @@
+using System.Text;
+using Confluent.Kafka;
+using JorgeCostaMacia.Bus.Kafka.Domain;
+using JorgeCostaMacia.Bus.Kafka.Infrastructure;
+using JorgeCostaMacia.Bus.Kafka.Tests.Support;
+using Microsoft.Extensions.Logging.Abstractions;
+using KafkaProducer = JorgeCostaMacia.Bus.Kafka.Infrastructure.Producers.Producer;
+
+namespace JorgeCostaMacia.Bus.Kafka.Tests.Infrastructure.Producers;
+
+public sealed class ProducerTests
+{
+    private readonly KafkaProducerFake _kafka = new KafkaProducerFake();
+    private readonly BusHealth _health = new BusHealth();
+
+    private KafkaProducer Sut() => new KafkaProducer(_kafka, _health, NullLogger<KafkaProducer>.Instance);
+
+    private static Message<Null, byte[]> Message(string value = "{}")
+        => new Message<Null, byte[]>() { Value = Encoding.UTF8.GetBytes(value) };
+
+    [Fact]
+    public async Task Produce_Success_ForwardsToTheClient()
+    {
+        await Sut().Produce("orders", Message("hi"), TestContext.Current.CancellationToken);
+
+        (string topic, _) = Assert.Single(_kafka.Produced);
+        Assert.Equal("orders", topic);
+    }
+
+    [Fact]
+    public async Task Produce_Success_ReportsTheBrokersUp()
+    {
+        _health.Down();
+
+        await Sut().Produce("orders", Message(), TestContext.Current.CancellationToken);
+
+        Assert.True(_health.IsUp);
+    }
+
+    [Fact]
+    public async Task Produce_Failure_DoesNotReportTheBrokersUp()
+    {
+        // only a broker-acked produce is the reachability proof: a failed one must leave the state
+        // where it was, so a down bus does not flip up on a produce that never reached a broker.
+        _health.Down();
+        _kafka.ProduceFailure = new ProduceException<Null, byte[]>(
+            new Error(ErrorCode.Local_MsgTimedOut),
+            new DeliveryResult<Null, byte[]>());
+
+        await Assert.ThrowsAsync<ProduceException<Null, byte[]>>(
+            () => Sut().Produce("orders", Message(), TestContext.Current.CancellationToken));
+
+        Assert.False(_health.IsUp);
+    }
+
+    [Fact]
+    public async Task Produce_QueueFull_Rethrows()
+    {
+        _kafka.ProduceFailure = new ProduceException<Null, byte[]>(
+            new Error(ErrorCode.Local_QueueFull),
+            new DeliveryResult<Null, byte[]>());
+
+        await Assert.ThrowsAsync<ProduceException<Null, byte[]>>(
+            () => Sut().Produce("orders", Message(), TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task Produce_GenericProduceException_Rethrows()
+    {
+        _kafka.ProduceFailure = new ProduceException<Null, byte[]>(
+            new Error(ErrorCode.Local_MsgTimedOut),
+            new DeliveryResult<Null, byte[]>());
+
+        await Assert.ThrowsAsync<ProduceException<Null, byte[]>>(
+            () => Sut().Produce("orders", Message(), TestContext.Current.CancellationToken));
+    }
+
+    [Fact]
+    public async Task Produce_StampsTheHostHeaders()
+    {
+        await Sut().Produce("orders", Message(), TestContext.Current.CancellationToken);
+
+        Message<Null, byte[]> produced = Assert.Single(_kafka.Produced).Message;
+        Assert.Equal(Environment.MachineName, Deliveries.Header(produced, TransportHeaders.HostMachineName));
+        Assert.False(string.IsNullOrWhiteSpace(Deliveries.Header(produced, TransportHeaders.HostAssembly)));
+        Assert.False(string.IsNullOrWhiteSpace(Deliveries.Header(produced, TransportHeaders.HostBusVersion)));
+    }
+
+    [Fact]
+    public async Task Produce_ReStampsTheHost_OverAClonedEnvelope()
+    {
+        Message<Null, byte[]> message = Message();
+        message.Headers = new Headers { new Header(TransportHeaders.HostMachineName, "another-host"u8.ToArray()) };
+
+        await Sut().Produce("orders", message, TestContext.Current.CancellationToken);
+
+        Message<Null, byte[]> produced = Assert.Single(_kafka.Produced).Message;
+        Assert.Equal(Environment.MachineName, Deliveries.Header(produced, TransportHeaders.HostMachineName));
+        Assert.Single(produced.Headers, header => header.Key == TransportHeaders.HostMachineName);
+    }
+
+    [Fact]
+    public async Task Produce_Batch_ProducesEveryPairInOrder()
+    {
+        List<KeyValuePair<string, Message<Null, byte[]>>> messages
+            = new List<KeyValuePair<string, Message<Null, byte[]>>>
+        {
+            new KeyValuePair<string, Message<Null, byte[]>>("orders", Message("a")),
+            new KeyValuePair<string, Message<Null, byte[]>>("payments", Message("b"))
+        };
+
+        await Sut().Produce(messages, TestContext.Current.CancellationToken);
+
+        Assert.Equal(new string[] { "orders", "payments" }, _kafka.Produced.Select(produced => produced.Topic));
+    }
+
+    [Fact]
+    public async Task Produce_Batch_OneFails_ThrowsTheFailure_AndStillProducesTheRest()
+    {
+        // the pairs are enqueued together and awaited together: one failing pair faults the await
+        // (awaiting still means broker-acked for EVERY message), while the other pairs are still
+        // produced — a partial batch failure does not roll back nor stop the rest.
+        _kafka.ProduceFailure = new ProduceException<Null, byte[]>(
+            new Error(ErrorCode.Local_MsgTimedOut),
+            new DeliveryResult<Null, byte[]>());
+        _kafka.FailingTopics.Add("payments");
+        List<KeyValuePair<string, Message<Null, byte[]>>> messages
+            = new List<KeyValuePair<string, Message<Null, byte[]>>>
+        {
+            new KeyValuePair<string, Message<Null, byte[]>>("orders", Message("a")),
+            new KeyValuePair<string, Message<Null, byte[]>>("payments", Message("b")),
+            new KeyValuePair<string, Message<Null, byte[]>>("shipping", Message("c"))
+        };
+
+        await Assert.ThrowsAsync<ProduceException<Null, byte[]>>(
+            () => Sut().Produce(messages, TestContext.Current.CancellationToken));
+
+        Assert.Equal(new string[] { "orders", "shipping" }, _kafka.Produced.Select(produced => produced.Topic));
+    }
+}
