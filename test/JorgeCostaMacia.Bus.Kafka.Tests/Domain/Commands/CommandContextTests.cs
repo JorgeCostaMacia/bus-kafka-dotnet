@@ -52,7 +52,7 @@ public sealed class CommandContextTests
         Transport());
 
     [Fact]
-    public void MessageAndTransport_AreTheDeliveredPair()
+    public void Constructor_WithAMessageAndATransport_ExposesThemAsTheDeliveredPair()
     {
         TestCommand command = new TestCommand("pepe");
         Transport transport = Transport();
@@ -66,7 +66,7 @@ public sealed class CommandContextTests
     }
 
     [Fact]
-    public void AggregateTrace_ReadsFromTheTransportHeaders()
+    public void Constructor_WithAggregateHeaders_ExposesTheAggregateTrace()
     {
         CommandContext<TestCommand> context = CreateSut();
 
@@ -76,7 +76,7 @@ public sealed class CommandContextTests
     }
 
     [Fact]
-    public void Conversation_ReadsFromTheTransportHeaders()
+    public void Constructor_WithConversationHeaders_ExposesTheConversation()
     {
         CommandContext<TestCommand> context = CreateSut();
 
@@ -86,11 +86,11 @@ public sealed class CommandContextTests
     }
 
     [Fact]
-    public void RetryCount_ReadsFromTheTransportHeaders()
+    public void RetryCount_WithARetryCountHeader_ReadsIt()
         => Assert.Equal(2, CreateSut().RetryCount);
 
     [Fact]
-    public void Host_ReadsFromTheTransportHeaders()
+    public void Constructor_WithHostHeaders_ExposesTheHost()
     {
         CommandContext<TestCommand> context = CreateSut();
 
@@ -103,7 +103,7 @@ public sealed class CommandContextTests
     }
 
     [Fact]
-    public void MessageFacet_ReadsFromTheTransportHeaders()
+    public void Constructor_WithMessageHeaders_ExposesTheMessageFacet()
     {
         // the message facet is the envelope's own identity, separate from the aggregate's and the
         // conversation's: it is what identifies THIS delivery, so a handler logging or deduplicating on

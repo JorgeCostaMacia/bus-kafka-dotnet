@@ -85,7 +85,7 @@ public sealed class KafkaLoggerTests
     }
 
     [Fact]
-    public void LogStatistics_LogsAtDebug()
+    public void LogStatistics_AStatisticsPayload_LogsAtDebug()
     {
         // statistics are opt-in and high volume: Debug keeps them out of a normally-configured log.
         RecordingLogger<KafkaLoggerTests> logger = new RecordingLogger<KafkaLoggerTests>();
@@ -100,6 +100,6 @@ public sealed class KafkaLoggerTests
     // the category is public API in practice: it is what an operator puts in appsettings to silence
     // the client's noise without touching the bus's own logs.
     [Fact]
-    public void Category_IsTheDedicatedClientCategory()
+    public void Category_ForClientLogs_IsTheDedicatedClientCategory()
         => Assert.Equal("JorgeCostaMacia.Bus.Kafka.Client", KafkaLogger.Category);
 }

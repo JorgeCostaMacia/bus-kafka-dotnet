@@ -5,7 +5,7 @@ namespace JorgeCostaMacia.Bus.Kafka.Tests.Infrastructure;
 public sealed class BusHealthTests
 {
     [Fact]
-    public void StartsUp_WithAConstructionTimestamp()
+    public void Constructor_WithoutArguments_StartsUpStampedAtConstruction()
     {
         DateTime before = DateTime.UtcNow;
 
@@ -16,7 +16,7 @@ public sealed class BusHealthTests
     }
 
     [Fact]
-    public void Down_FlipsTheState_AndStampsTheFlip()
+    public void Down_WhileUp_FlipsToDownAndStampsTheFlip()
     {
         BusHealth health = new BusHealth();
         DateTime constructedAt = health.ChangedAt;
@@ -41,7 +41,7 @@ public sealed class BusHealthTests
     }
 
     [Fact]
-    public void Up_AfterDown_FlipsBack_AndStampsTheFlip()
+    public void Up_AfterDown_FlipsBackAndStampsTheFlip()
     {
         BusHealth health = new BusHealth();
         health.Down();

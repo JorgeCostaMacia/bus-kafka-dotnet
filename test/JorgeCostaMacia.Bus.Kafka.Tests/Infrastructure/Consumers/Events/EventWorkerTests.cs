@@ -65,7 +65,7 @@ public sealed class EventWorkerTests
     }
 
     [Fact]
-    public async Task SubscriberSucceeds_StoresTheOffset_AndProducesNothing()
+    public async Task StartAsync_SubscriberSucceeds_StoresTheOffsetAndProducesNothing()
     {
         ConsumerFake consumer = new ConsumerFake(Deliveries.Delivery(new TestEvent("pepe")));
 
@@ -77,7 +77,7 @@ public sealed class EventWorkerTests
     }
 
     [Fact]
-    public async Task TargetsOtherConsumers_SkipsAndStores_WithoutRunningTheSubscriber()
+    public async Task StartAsync_AnEventTargetedAtOtherConsumers_SkipsItAndStoresTheOffset()
     {
         ConsumerFake consumer = new ConsumerFake(
             Deliveries.Delivery(new TestEvent("pepe"), consumers: "billing.on.orders.subscriber"));
@@ -90,7 +90,7 @@ public sealed class EventWorkerTests
     }
 
     [Fact]
-    public async Task TargetsItsGroup_Runs()
+    public async Task StartAsync_AnEventTargetedAtItsGroup_RunsTheSubscriber()
     {
         ConsumerFake consumer = new ConsumerFake(
             Deliveries.Delivery(new TestEvent("pepe"), consumers: $"other.subscriber,{Deliveries.GroupId}"));
@@ -102,7 +102,7 @@ public sealed class EventWorkerTests
     }
 
     [Fact]
-    public async Task SubscriberThrows_NoLadder_ParksToErrorTopic_AndStores()
+    public async Task StartAsync_SubscriberThrowsWithNoLadder_ParksToTheErrorTopicAndStores()
     {
         _subscriber.Failure = new InvalidOperationException("boom");
         ConsumerFake consumer = new ConsumerFake(Deliveries.Delivery(new TestEvent("pepe")));
@@ -115,7 +115,7 @@ public sealed class EventWorkerTests
     }
 
     [Fact]
-    public async Task SubscriberThrows_ZeroInterval_RequeuesToTopicTail_AndStores()
+    public async Task StartAsync_SubscriberThrowsWithAZeroInterval_RequeuesToTheTopicTailAndStores()
     {
         _subscriber.Failure = new InvalidOperationException("boom");
         ConsumerFake consumer = new ConsumerFake(Deliveries.Delivery(new TestEvent("pepe")));
@@ -128,7 +128,7 @@ public sealed class EventWorkerTests
     }
 
     [Fact]
-    public async Task MalformedBody_ParksToFaultTopic_AndStores()
+    public async Task StartAsync_AMalformedBody_ParksToTheFaultTopicAndStores()
     {
         ConsumerFake consumer = new ConsumerFake(Deliveries.Garbage());
 
@@ -141,7 +141,7 @@ public sealed class EventWorkerTests
     }
 
     [Fact]
-    public async Task NullBody_ParksToFaultTopic_AndStores()
+    public async Task StartAsync_ANullBody_ParksToTheFaultTopicAndStores()
     {
         ConsumerFake consumer = new ConsumerFake(Deliveries.NullBody());
 
@@ -154,7 +154,7 @@ public sealed class EventWorkerTests
     }
 
     [Fact]
-    public async Task MultipleDeliveries_ProcessedInOrder_EachStored()
+    public async Task StartAsync_SeveralDeliveries_HandlesAndStoresEachInOrder()
     {
         ConsumerFake consumer = new ConsumerFake(
             Deliveries.Delivery(new TestEvent("a"), 10),
@@ -167,7 +167,7 @@ public sealed class EventWorkerTests
     }
 
     [Fact]
-    public async Task UnreadableEnvelope_RelaysToFaultTopic()
+    public async Task StartAsync_SubscriberThrowsOnAnEnvelopeWithoutTrace_RelaysToTheFaultTopic()
     {
         // the body parses and the subscriber runs, but the envelope has no trace headers: the error
         // handler cannot read the retry count and reports Faulted — the delivery must end parked.
@@ -182,7 +182,7 @@ public sealed class EventWorkerTests
     }
 
     [Fact]
-    public async Task Tombstone_ParksToFaultTopic_AndStores()
+    public async Task StartAsync_ATombstone_ParksToTheFaultTopicAndStores()
     {
         ConsumerFake consumer = new ConsumerFake(Deliveries.Tombstone());
 
@@ -195,7 +195,7 @@ public sealed class EventWorkerTests
     }
 
     [Fact]
-    public async Task EmptyAggregateConsumers_IsNotFiltered_AndRuns()
+    public async Task StartAsync_AnEventWithAnEmptyConsumersHeader_RunsTheSubscriber()
     {
         // an empty AggregateConsumers header targets nobody in particular: the delivery is for
         // everyone, so the subscriber must run — only a non-empty list excluding this group filters.

@@ -29,7 +29,7 @@ public sealed class BusHealthCheckTests
     }
 
     [Fact]
-    public async Task CheckHealthAsync_AllBrokersDown_ReportsUnhealthyByDefault_WithTheFlipInstant()
+    public async Task CheckHealthAsync_AllBrokersDown_ReportsUnhealthyByDefaultWithTheFlipInstant()
     {
         _health.Down();
         BusHealthCheck check = new BusHealthCheck(_health);

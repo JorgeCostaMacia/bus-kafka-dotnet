@@ -11,7 +11,7 @@ public sealed class ProducerWorkerTests
     private ProducerWorker Sut() => new ProducerWorker(_kafka, NullLogger<ProducerWorker>.Instance);
 
     [Fact]
-    public async Task StopAsync_FlushesTheProducer()
+    public async Task StopAsync_AHealthyProducer_FlushesIt()
     {
         await Sut().StopAsync(TestContext.Current.CancellationToken);
 
@@ -41,7 +41,7 @@ public sealed class ProducerWorkerTests
     }
 
     [Fact]
-    public async Task StartAsync_DoesNothing()
+    public async Task StartAsync_OnAnIdleProducer_NeitherProducesNorFlushes()
     {
         await Sut().StartAsync(TestContext.Current.CancellationToken);
 
