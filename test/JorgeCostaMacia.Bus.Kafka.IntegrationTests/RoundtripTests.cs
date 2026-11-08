@@ -26,7 +26,7 @@ public sealed class RoundtripTests : IClassFixture<KafkaFixture>
 
     /// <summary>A sent command is delivered to its handler carrying the original payload.</summary>
     [Fact]
-    public async Task Send_delivers_the_command_to_its_handler_with_its_payload()
+    public async Task Send_ToARegisteredHandler_DeliversTheCommandWithItsPayload()
     {
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         TaskCompletionSource<IntegrationCommand> received = new TaskCompletionSource<IntegrationCommand>(

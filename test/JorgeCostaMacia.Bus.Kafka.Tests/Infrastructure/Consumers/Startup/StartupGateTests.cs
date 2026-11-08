@@ -37,7 +37,7 @@ public sealed class StartupGateTests
     }
 
     [Fact]
-    public async Task Constructor_ClampsANonPositiveLimitToOne()
+    public async Task Constructor_ANonPositiveLimit_ClampsItToOne()
     {
         StartupGate gate = new StartupGate(0);
 

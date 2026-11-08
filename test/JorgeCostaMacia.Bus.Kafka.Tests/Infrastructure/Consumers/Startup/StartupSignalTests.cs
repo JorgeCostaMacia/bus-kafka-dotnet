@@ -13,7 +13,7 @@ public sealed class StartupSignalTests
     }
 
     [Fact]
-    public async Task MarkReady_CompletesReady()
+    public async Task MarkReady_OnAFreshSignal_CompletesReady()
     {
         StartupSignal signal = new StartupSignal();
 

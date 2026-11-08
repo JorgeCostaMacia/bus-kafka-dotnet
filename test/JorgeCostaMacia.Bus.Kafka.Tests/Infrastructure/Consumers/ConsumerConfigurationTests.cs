@@ -6,7 +6,7 @@ namespace JorgeCostaMacia.Bus.Kafka.Tests.Infrastructure.Consumers;
 public sealed class ConsumerConfigurationTests
 {
     [Fact]
-    public void ConsumerConfig_ComposesTheGroupAndTheDefaults()
+    public void ConsumerConfig_UnsetValues_ComposeTheGroupWithTheDefaults()
     {
         ConsumerConfig config = new ConsumerConfiguration
         {

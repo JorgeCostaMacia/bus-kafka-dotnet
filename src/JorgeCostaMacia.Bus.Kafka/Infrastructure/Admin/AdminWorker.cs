@@ -94,7 +94,7 @@ internal sealed class AdminWorker : IHostedService
 
         using (BusLogger.DescriptionContext(BusLoggerDescriptions.TopicsEnsured))
         {
-            _logger.LogInformation("Topics ensured.");
+            _logger.LogInformation("TopicsEnsured");
         }
     }
 

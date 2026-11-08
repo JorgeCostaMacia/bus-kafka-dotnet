@@ -36,7 +36,7 @@ public sealed class EventErrorHandlerTests
             excludes ?? ImmutableList<Type>.Empty);
 
     [Fact]
-    public async Task MissingRetryCountHeader_ReportsFaulted()
+    public async Task Handle_MissingRetryCountHeader_ReportsFaulted()
     {
         // an envelope whose retry count cannot be read is unreadable for the ladder: the handler
         // reports Faulted so the worker relays the delivery to the fault lane instead of retrying.
@@ -53,7 +53,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task NoLadder_ParksToErrorTopic()
+    public async Task Handle_NoLadder_ParksToTheErrorTopic()
     {
         EventErrorContext<TestEvent> context = new EventErrorContext<TestEvent>(
             new TestEvent("pepe"),
@@ -85,7 +85,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task ParkedHeaders_CarryTheFailedMessageTrace()
+    public async Task Handle_ATracedDeliveryWithNoLadder_ParksItWithTheTraceHeaders()
     {
         Guid aggregateId = Guid.NewGuid();
         Guid aggregateCorrelationId = Guid.NewGuid();
@@ -106,7 +106,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task ParkedBody_CarriesTheFullExceptionChain_AndTheHost()
+    public async Task Handle_ANestedExceptionWithData_ParksTheFullChainAndTheHost()
     {
         Exception failure = new InvalidOperationException(
             "outer",
@@ -128,7 +128,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task ZeroInterval_RequeuesToTopicTail_RetargetedToItsGroup()
+    public async Task Handle_ZeroInterval_RequeuesToTheTopicTailRetargetedToItsGroup()
     {
         EventErrorHandler<TestEvent, TestEventSubscriber> sut = EventError(ImmutableList.Create(TimeSpan.Zero));
 
@@ -148,7 +148,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task PositiveInterval_ParksThroughScheduler_RetargetedToItsGroup()
+    public async Task Handle_PositiveInterval_SchedulesTheRetryRetargetedToItsGroup()
     {
         EventErrorHandler<TestEvent, TestEventSubscriber> sut = EventError(
             ImmutableList.Create(TimeSpan.FromMinutes(5)));
@@ -174,7 +174,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task LadderExhausted_Parks()
+    public async Task Handle_LadderExhausted_ParksToTheErrorTopic()
     {
         EventErrorHandler<TestEvent, TestEventSubscriber> sut = EventError(
             ImmutableList.Create(TimeSpan.Zero, TimeSpan.Zero));
@@ -191,7 +191,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task ExcludedException_Parks_InheritanceAware()
+    public async Task Handle_ASubclassOfAnExcludedException_ParksWithoutRetrying()
     {
         EventErrorHandler<TestEvent, TestEventSubscriber> sut = EventError(
             ImmutableList.Create(TimeSpan.Zero),
@@ -209,7 +209,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task PositiveInterval_WithoutScheduler_ParksAsTerminal()
+    public async Task Handle_PositiveIntervalWithoutAScheduler_ParksAsTerminal()
     {
         EventErrorHandler<TestEvent, TestEventSubscriber> sut = EventError(
             ImmutableList.Create(TimeSpan.FromMinutes(5)),
@@ -228,7 +228,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task SchedulerFails_LeavesUnhandled()
+    public async Task Handle_SchedulerFails_LeavesUnhandled()
     {
         _scheduler.Failure = new InvalidOperationException("scheduler down");
         EventErrorHandler<TestEvent, TestEventSubscriber> sut = EventError(
@@ -246,7 +246,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task RequeueProduceFails_LeavesUnhandled()
+    public async Task Handle_RequeueProduceFails_LeavesUnhandled()
     {
         _producer.Failure = new ProduceException<Null, byte[]>(
             new Error(ErrorCode.Local_MsgTimedOut),
@@ -264,7 +264,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task SecondRetry_ContinuesTheCumulativeCount()
+    public async Task Handle_ASecondRetry_ContinuesTheCumulativeCount()
     {
         EventErrorHandler<TestEvent, TestEventSubscriber> sut = EventError(
             ImmutableList.Create(TimeSpan.Zero, TimeSpan.Zero, TimeSpan.Zero));
@@ -281,11 +281,11 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task ShutdownWhileParking_LeavesUnhandled_Silently()
+    public async Task Handle_ShutdownWhileParking_LeavesUnhandledSilently()
     {
         // a deploy cancels the token mid-park. Unhandled is the only safe answer — the delivery stays
         // unacked, so whoever is still running gets it — and it must be SILENT: the generic catch logs
-        // "Producer failed." at Error, and a routine shutdown must not put an error in the log.
+        // "ProducerFailed" at Error, and a routine shutdown must not put an error in the log.
         RecordingLogger<TestEvent> logger = new RecordingLogger<TestEvent>();
         _producer.Failure = new OperationCanceledException();
         EventErrorHandler<TestEvent, TestEventSubscriber> sut = EventError(logger: logger);
@@ -302,7 +302,7 @@ public sealed class EventErrorHandlerTests
     }
 
     [Fact]
-    public async Task ShutdownWhileScheduling_LeavesUnhandled_Silently()
+    public async Task Handle_ShutdownWhileScheduling_LeavesUnhandledSilently()
     {
         // same during a delayed retry: cancelling the schedule must not read as a scheduler outage.
         RecordingLogger<TestEvent> logger = new RecordingLogger<TestEvent>();

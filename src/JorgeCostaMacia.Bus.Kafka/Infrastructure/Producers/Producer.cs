@@ -75,7 +75,7 @@ internal sealed class Producer : IProducer
             using (BusLogger.ProducerContext(topic, message))
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.ProducerQueueFull))
             {
-                _logger.LogError(exception, "Producer failed.");
+                _logger.LogError(exception, "ProducerFailed");
             }
 
             throw;
@@ -85,7 +85,7 @@ internal sealed class Producer : IProducer
             using (BusLogger.ProducerContext(topic, message))
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.SendFaulted))
             {
-                _logger.LogError(exception, "Producer failed.");
+                _logger.LogError(exception, "ProducerFailed");
             }
 
             throw;

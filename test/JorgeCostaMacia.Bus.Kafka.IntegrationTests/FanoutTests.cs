@@ -34,7 +34,7 @@ public sealed class FanoutTests : IClassFixture<KafkaFixture>
 
     /// <summary>One published event is delivered to two subscribers on two consumer groups reading its topic.</summary>
     [Fact]
-    public async Task Publish_fansTheEventOutToEverySubscriberGroup_BothReceiveIt()
+    public async Task Publish_WithTwoSubscribers_DeliversTheEventToBoth()
     {
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         FanoutProbe probe = new FanoutProbe();

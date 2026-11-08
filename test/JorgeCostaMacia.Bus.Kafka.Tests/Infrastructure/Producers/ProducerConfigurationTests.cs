@@ -34,7 +34,7 @@ public sealed class ProducerConfigurationTests
     // timeout at or above the poll interval, a broker slow to confirm evicts the consumer from its group
     // instead of failing the delivery into the bus's retry. Seen in production with both at 5 minutes.
     [Fact]
-    public void Defaults_TheDeliveryTimeoutStaysBelowTheConsumersPollInterval()
+    public void MessageTimeoutMs_TheProducerDefault_StaysBelowTheConsumersPollInterval()
         => Assert.True(
             ProducerConfigurationDefaults.MessageTimeoutMs < ConsumerConfigurationDefaults.MaxPollIntervalMs);
 

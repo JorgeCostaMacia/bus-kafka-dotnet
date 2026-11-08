@@ -43,7 +43,7 @@ public sealed class ErrorParkingTests : IClassFixture<KafkaFixture>
     /// <summary>A handler that always throws exhausts its retry ladder and the failure is parked to the topic's
     /// <c>.error</c>.</summary>
     [Fact]
-    public async Task Send_toAHandlerThatAlwaysThrowsWithAnExhaustingLadder_ParksTheFailureToTheErrorTopic()
+    public async Task Send_ToAHandlerThatAlwaysThrows_ParksTheFailureToTheErrorTopic()
     {
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         IConfiguration configuration = _fixture.BuildConfiguration();

@@ -69,7 +69,7 @@ internal sealed class EventFaultHandler<TEvent, TEventSubscriber> : EventFaultHa
 
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.ParkedToFaultTopic))
             {
-                _logger.LogError(context.Error, "Delivery faulted.");
+                _logger.LogError(context.Error, "DeliveryFaulted");
             }
 
             Result = FaultResult.Parked;
@@ -82,7 +82,7 @@ internal sealed class EventFaultHandler<TEvent, TEventSubscriber> : EventFaultHa
         {
             using (BusLogger.DescriptionContext(BusLoggerDescriptions.DeliveryNotAcked))
             {
-                _logger.LogError(park, "Parking failed.");
+                _logger.LogError(park, "ParkingFailed");
             }
 
             Result = FaultResult.Unhandled;

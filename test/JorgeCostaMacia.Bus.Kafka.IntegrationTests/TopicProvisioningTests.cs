@@ -30,7 +30,7 @@ public sealed class TopicProvisioningTests : IClassFixture<KafkaFixture>
 
     /// <summary>Each declared topic is created with the partition count it declared.</summary>
     [Fact]
-    public async Task Declared_topics_are_created_with_their_declared_partition_count()
+    public async Task StartAsync_DeclaredTopics_CreatesEachWithItsDeclaredPartitionCount()
     {
         string three = Topic();
         string one = Topic();
@@ -54,7 +54,7 @@ public sealed class TopicProvisioningTests : IClassFixture<KafkaFixture>
     /// that treated "already exists" as a failure would break every restart.
     /// </summary>
     [Fact]
-    public async Task Re_declaring_an_existing_topic_is_idempotent_and_leaves_it_untouched()
+    public async Task StartAsync_AnExistingTopicRedeclared_LeavesItsPartitionCountUntouched()
     {
         string topic = Topic();
 
@@ -69,7 +69,7 @@ public sealed class TopicProvisioningTests : IClassFixture<KafkaFixture>
     /// the one a wrong range calculation would drop.
     /// </summary>
     [Fact]
-    public async Task Topics_beyond_the_batch_size_are_all_created_including_the_partial_last_batch()
+    public async Task StartAsync_MoreTopicsThanTheBatchSize_CreatesThemAllIncludingThePartialLastBatch()
     {
         // five topics in batches of two: 2 + 2 + 1, so the final batch is short.
         List<string> declared = new List<string>() { Topic(), Topic(), Topic(), Topic(), Topic() };
@@ -93,7 +93,7 @@ public sealed class TopicProvisioningTests : IClassFixture<KafkaFixture>
     /// exist is the confirmation it completed by doing the work.
     /// </summary>
     [Fact]
-    public async Task A_batch_size_below_one_is_clamped_instead_of_looping_forever()
+    public async Task StartAsync_ABatchSizeBelowOne_ClampsItAndCreatesEveryTopic()
     {
         string first = Topic();
         string second = Topic();
@@ -115,7 +115,7 @@ public sealed class TopicProvisioningTests : IClassFixture<KafkaFixture>
     /// makes their existence a signal that something actually failed; pre-creating them would erase that.
     /// </summary>
     [Fact]
-    public async Task The_derived_error_and_fault_topics_are_not_created()
+    public async Task StartAsync_ADeclaredTopic_DoesNotCreateItsErrorAndFaultTopics()
     {
         string topic = Topic();
 
