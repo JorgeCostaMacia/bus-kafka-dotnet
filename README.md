@@ -26,7 +26,11 @@ The **.NET 10** SDK.
 
 ## Upgrading from 4.x (bus-net)
 
-Bump the three packages to 5.0.0 together with `JorgeCostaMacia.DDD.DomainEvent` 11.0.0 (ddd-dotnet), and rename `JorgeCostaMacia.DomainEvent` to `JorgeCostaMacia.DDD.DomainEvent` in your `using`s. Nothing else changed.
+Bump the three packages together with `JorgeCostaMacia.DDD.DomainEvent` 11.0.0 (ddd-dotnet), and rename `JorgeCostaMacia.DomainEvent` to `JorgeCostaMacia.DDD.DomainEvent` in your `using`s. Since 5.1.0 the log messages are PascalCase event names (`Subscriber failed.` is `SubscriberFailed`), so a query or an alert on the old text needs the new one, and `.Retry.Quartz` is built on Quartz 4.7, whose store needs `triggers.fixed_delay` (Quartz's `database/migrations/4.7/add_trigger_fixed_delay`) before a 4.7 node starts the scheduler.
+
+## Upgrading to 5.2.0
+
+The consumer prefetches less by default: `QueuedMaxMessagesKbytes` is 2048 (it was 8192) and `QueuedMinMessages` 1000 (it was 5000), so a service with hundreds of consumers holds far less memory through a reload or a start with a backlog. A service that runs few consumers at high throughput sets them back in `Bus:Consumer`. The client's internal log message `Kafka log.` is `KafkaLog`, as the others.
 
 ## Contact
 

@@ -127,7 +127,7 @@ public sealed class KafkaClientCallbacksTests
         probe.Statistics!(null!, "{}");
 
         Assert.Equal(
-            new List<string>() { "Kafka log.", "KafkaStatistics" },
+            new List<string>() { "KafkaLog", "KafkaStatistics" },
             logger.Logged.Select(entry => entry.Message).ToList());
     }
 

@@ -47,7 +47,7 @@ public sealed class KafkaLoggerTests
 
         (LogLevel Level, string Message) entry = Assert.Single(logger.Logged);
         Assert.Equal(LogLevel.Information, entry.Level);
-        Assert.Equal("Kafka log.", entry.Message);
+        Assert.Equal("KafkaLog", entry.Message);
     }
 
     [Fact]

@@ -67,7 +67,7 @@ internal static class KafkaLogger
                 level = LogLevel.Error;
             }
 
-            logger.Log(level, "Kafka log.");
+            logger.Log(level, "KafkaLog");
         }
     }
 

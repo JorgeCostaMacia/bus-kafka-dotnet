@@ -23,8 +23,8 @@ public sealed class ConsumerConfigurationTests
         Assert.Equal(AutoOffsetReset.Earliest, config.AutoOffsetReset);
         Assert.Equal(PartitionAssignmentStrategy.CooperativeSticky, config.PartitionAssignmentStrategy);
         Assert.Equal(Environment.MachineName, config.GroupInstanceId);
-        Assert.Equal(5_000, config.QueuedMinMessages);
-        Assert.Equal(8_192, config.QueuedMaxMessagesKbytes);
+        Assert.Equal(1_000, config.QueuedMinMessages);
+        Assert.Equal(2_048, config.QueuedMaxMessagesKbytes);
     }
 
     [Fact]

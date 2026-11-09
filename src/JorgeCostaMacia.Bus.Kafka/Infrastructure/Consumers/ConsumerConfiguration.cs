@@ -72,11 +72,11 @@ public sealed record ConsumerConfiguration
     public string? GroupInstanceId { get; init; }
 
     /// <summary>Minimum messages the client prefetches per partition, or <see langword="null"/> for the default
-    /// (5000).</summary>
+    /// (1000).</summary>
     public int? QueuedMinMessages { get; init; }
 
     /// <summary>Maximum kbytes of prefetched messages in the consumer's queue — dominates the consumer's memory
-    /// footprint when a process hosts many workers — or <see langword="null"/> for the default (8192).</summary>
+    /// footprint when a process hosts many workers — or <see langword="null"/> for the default (2048).</summary>
     public int? QueuedMaxMessagesKbytes { get; init; }
 
     /// <summary>Interval (ms) between statistics emissions (logged at Debug under the Kafka category), or
