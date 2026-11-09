@@ -1,6 +1,6 @@
 # bus-kafka-dotnet — working in this repo
 
-The Kafka transport of the `JorgeCostaMacia.Bus` contracts — the concrete command/event bus over Confluent.Kafka, its Quartz-backed delayed retry and its health check — shipped on NuGet under `JorgeCostaMacia.Bus.Kafka.*`. The contracts live in [bus-dotnet](https://github.com/JorgeCostaMacia/bus-dotnet) and the other transport in [bus-rabbitmq-dotnet](https://github.com/JorgeCostaMacia/bus-rabbitmq-dotnet); each releases on its own, so a patch here republishes neither. Moved out of **bus-net** in 5.0.0, keeping the package ids.
+The Kafka transport of the `JorgeCostaMacia.Bus` contracts — the concrete command/event bus over Confluent.Kafka, its Quartz-backed delayed retry and its health check — shipped on NuGet under `JorgeCostaMacia.Bus.Kafka.*`. The contracts live in [bus-dotnet](https://github.com/JorgeCostaMacia/bus-dotnet) and the other transport in [bus-rabbitmq-dotnet](https://github.com/JorgeCostaMacia/bus-rabbitmq-dotnet); each releases on its own, so a patch here republishes neither.
 
 ## Layout
 
@@ -70,6 +70,7 @@ A skill listed here but missing on this machine is one command away: `claude plu
 - **`ddd`** — domain events: the `IDomainEvent` marker crossing into the transport's `Event` is this repo's core concept.
 - **`clean-architecture`** / **`solid`** — the bus as the messaging Infrastructure/Presentation seam (consumers are driving adapters), and design review of the public surface.
 - **`gitflow`** — all branch/release work.
+- **`changelog`** — the `CHANGELOG.md` entry a release adds when it asks something of the packages' consumers (a major, a new requirement, a changed default, a renamed log message), written with the version bump.
 - **`dotnet`** — C# language server + general .NET development.
 - **`dotnet-msbuild`** — `Directory.Build.props`, project-file quality, CPM.
 - **`dotnet-nuget`** — dependency management.
